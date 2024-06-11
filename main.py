@@ -8,7 +8,7 @@ from mouse import move, on_right_click, LEFT
 
 MONITOR = (0, 0, 1920, 1080)
 SUCCESSFUL_MATCHED_PERCENT = .8
-BANANA_IMAGE = imread('C:\\Users\\mewok\\Desktop\\BananaClick\\banana.png', IMREAD_COLOR)
+BANANA_IMAGE = imread('\\full\\path\\to\\banana.png', IMREAD_COLOR)
 BANANA_HALF_WIDTH = round(BANANA_IMAGE.shape[1] / 2)
 BANANA_HALF_HEIGHT = round(BANANA_IMAGE.shape[0] / 2)
 
