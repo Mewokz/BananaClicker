@@ -1,67 +1,50 @@
-
+import time
+import pyautogui
 from mss import mss
-from mss.base import MSSBase
 from numpy import ndarray, array
 from cv2 import imread, matchTemplate, minMaxLoc, cvtColor, TM_CCOEFF_NORMED, IMREAD_COLOR
 from cv2.typing import Point
-from mouse import click, move, on_right_click, LEFT
+from mouse import move, on_right_click, LEFT
 
-MONITOR: tuple[int, int, int, int] = (0, 0, 1920, 1080)
+MONITOR = (0, 0, 1920, 1080)
+SUCCESSFUL_MATCHED_PERCENT = .8
+BANANA_IMAGE = imread('C:\\Users\\mewok\\Desktop\\BananaClick\\banana.png', IMREAD_COLOR)
+BANANA_HALF_WIDTH = round(BANANA_IMAGE.shape[1] / 2)
+BANANA_HALF_HEIGHT = round(BANANA_IMAGE.shape[0] / 2)
 
-SUCCESSFUL_MATCHED_PERCENT: float = .8
-
-BANANA_IMAGE: ndarray = imread('banana.png', IMREAD_COLOR)
-
-BANANA_HALF_WIDTH: int = round(BANANA_IMAGE.shape[1] / 2)
-BANANA_HALF_HEIGHT: int = round(BANANA_IMAGE.shape[0] / 2)
-
-class Status():
+class Status:
     def __init__(self):
         self.__is_runing = True
 
-    def stop(self) -> None:
+    def stop(self):
         self.__is_runing = False
 
-    def is_runing(self) -> bool:
+    def is_runing(self):
         return self.__is_runing
 
-def make_screenshot(base: MSSBase) -> ndarray:
+def make_screenshot(base):
     return cvtColor(array(base.grab(MONITOR)), IMREAD_COLOR)
 
-def match_one(image: ndarray, haystack: ndarray) -> Point | None:
-    result: ndarray = matchTemplate(image, haystack, TM_CCOEFF_NORMED)
+def match_one(image, haystack):
+    result = matchTemplate(image, haystack, TM_CCOEFF_NORMED)
     _, maxVal, _, maxLoc = minMaxLoc(result)
     if maxVal >= SUCCESSFUL_MATCHED_PERCENT:
         return maxLoc
-
     return None
 
-def get_banana(screenshot: ndarray) -> Point | None:
-    point = match_one(BANANA_IMAGE, screenshot)
-    if point is not None:
-        return point
+def get_banana(screenshot):
+    return match_one(BANANA_IMAGE, screenshot)
 
-    return None
-
-def banana() -> None:
-    status: Status = Status()
+def banana():
+    status = Status()
     on_right_click(status.stop)
-
-    base: MSSBase = mss()
-    banana: Point | None = None
+    base = mss()
 
     while status.is_runing():
-        if banana == None:
-            screenshot: ndarray = make_screenshot(base)
-            banana: Point | None = get_banana(screenshot)
-        
-        if banana != None:
-            move(
-                banana[0] + BANANA_HALF_WIDTH, 
-                banana[1] + BANANA_HALF_HEIGHT
-            )
-
-            click(LEFT)
+        banana = get_banana(make_screenshot(base))
+        if banana:
+            move(banana[0] + BANANA_HALF_WIDTH, banana[1] + BANANA_HALF_HEIGHT)
+            pyautogui.click(clicks=30, interval=1/30)
  
 if __name__ == "__main__":
-    banana() 
+    banana()
